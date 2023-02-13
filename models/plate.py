@@ -1,6 +1,7 @@
 from math import cos, sin
 
 import numpy as np
+from PyQt6.QtGui import QVector3D
 
 from models.model import Model
 
@@ -14,13 +15,32 @@ class Plate(Model):
     DOWN = -0.1
     DOWN_RADIUS = 0.3
 
-    C1 = (1.0, 0.0, 0.0)
-    C2 = (0.0, 1.0, 0.0)
-    C3 = (0.0, 0.0, 1.0)
+    def def_color_const(self):
+        def _get_color(base):
+            step = self.color_step
+            if step > 50:
+                step = 50 - step % 50
+            if step == 50:
+                step = 49
 
-    def __init__(self, context, program, edge_count: int):
+            return tuple(
+                (component + step * 0.01) % 1.0
+                for component in base
+            )
+
+        self.C1 = _get_color((0.5, 0.0, 0.0))
+        self.C2 = _get_color((0.0, 0.5, 0.0))
+        self.C3 = _get_color((0.0, 0.0, 0.5))
+
+    def __init__(self,
+                 context,
+                 program,
+                 edge_count: int,
+                 color_step: int):
         super().__init__(context, program)
         self.edge_count = 3 if edge_count < 3 else edge_count
+        self.color_step = color_step
+        self.def_color_const()
 
     @staticmethod
     def get_point_by_angle(angle, radius, y) -> (float, float):
@@ -32,7 +52,6 @@ class Plate(Model):
         )
 
     def get_polygons(self) -> [[float]]:
-
         bottom_polygons = []
         upper_polygons = []
 
