@@ -1,7 +1,4 @@
-from PyQt6.QtCore import QCoreApplication, Qt
-from PyQt6.QtGui import QSurfaceFormat
-
-from scenes.default_scene import DefaultScene
+from OpenGL import GL
 from PyQt6.QtWidgets import QApplication
 
 from scenes.plate_scene import PlateScene

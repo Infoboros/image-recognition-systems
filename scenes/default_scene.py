@@ -1,8 +1,10 @@
+import os
 from abc import abstractmethod
 from contextlib import suppress
 
 import ModernGL
-import numpy as np
+import numpy
+from PIL import Image
 from ModernGL import VertexArray
 from OpenGL import GL
 from PyQt6 import QtGui
@@ -106,25 +108,27 @@ class DefaultScene(QOpenGLWidget):
                             #version 330
     
                             in vec4 vert;
-                            in vec3 vert_color;
+                            in vec2 tex_coord;
+                            
+                            out vec2 v_tex_coord;
                             
                             uniform mat4 model_matrix;
-                            
-                            out vec3 frag_color;
     
                             void main() {
-                                frag_color = vert_color;
                                 gl_Position = model_matrix * vert;
+                                v_tex_coord = tex_coord;
                             }
                 '''),
                 self.ctx.fragment_shader('''
                             #version 330
     
-                            in vec3 frag_color;
+                            uniform sampler2D texture_a;
+
+                            in vec2 v_tex_coord;
                             out vec4 color;
 
                             void main() {
-                                color = vec4(frag_color, 1.0);
+                                color = vec4(texture(texture_a, v_tex_coord).rgb, 1.0);
                             }
                 ''')
             ]
@@ -132,43 +136,23 @@ class DefaultScene(QOpenGLWidget):
 
         self.vaoes = self.get_vaoes()
 
-        self.rotate_polygon_center = [
-            ((self.last_double_click.x() / float(self.width())) * 2.0 - 1.0),
-            -1 * ((self.last_double_click.y() / float(self.height())) * 2.0 - 1.0)
-        ]
-        self.rotate_point_polygon = np.array([
-            self.rotate_polygon_center[0], self.rotate_polygon_center[1] + 0.05, 0.0, 1.0,
-            1.0, 0.0, 0.0,
-
-            self.rotate_polygon_center[0] - 0.05, self.rotate_polygon_center[1] - 0.05, 0.0, 1.0,
-            1.0, 0.0, 0.0,
-
-            self.rotate_polygon_center[0] + 0.05, self.rotate_polygon_center[1] - 0.05, 0.0, 1.0,
-            1.0, 0.0, 0.0,
-        ])
-        self.rotate_point = self.ctx.simple_vertex_array(
-            self.prog,
-            self.ctx.buffer(
-                self.rotate_point_polygon.astype(f'f4').tobytes()
-            ),
-            ['vert', 'vert_color']
-        )
+        img = Image.open(os.path.join(os.path.dirname(__file__), '..', 'textures', 'cat.jpeg'))
+        self.texture = self.ctx.texture(img.size, 3, img.tobytes())
 
     def paintGL(self):
         self.ctx.clear(1.0, 1.0, 1.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glEnable(GL.GL_DEPTH_TEST)
 
+        self.texture.use()
+
         self.prog.uniforms['model_matrix'].value = self.get_model_matrix()
         [
             vao.render(mode=ModernGL.TRIANGLE_STRIP)
             for vao in self.vaoes
         ]
-
-        self.prog.uniforms['model_matrix'].value = tuple(self.init_matrix().data())
-        self.rotate_point.render(mode=ModernGL.TRIANGLE_STRIP)
-
         self.ctx.finish()
+
 
         self.print_legend()
 
@@ -177,8 +161,8 @@ class DefaultScene(QOpenGLWidget):
         self.scale += delta
         if self.scale < 0.0:
             self.scale = 0.0
-        if self.scale > 1.0:
-            self.scale = 1.0
+        if self.scale > 3.0:
+            self.scale = 3.0
         self.update()
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
@@ -195,20 +179,6 @@ class DefaultScene(QOpenGLWidget):
         self.update()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
-
-        self.base_rotate_matrix.translate(self.rotate_polygon_center[0], self.rotate_polygon_center[1])
-
-        if (event.key() == 88) or (event.key() == 1063):
-            self.base_rotate_matrix.rotate(self.ROTATE_ANGLE, 1.0, 0.0, 0.0)
-
-        if (event.key() == 89) or (event.key() == 1053):
-            self.base_rotate_matrix.rotate(self.ROTATE_ANGLE, 0.0, 1.0, 0.0)
-
-        if (event.key() == 90) or (event.key() == 1071):
-            self.base_rotate_matrix.rotate(self.ROTATE_ANGLE, 0.0, 0.0, 1.0)
-
-        self.base_rotate_matrix.translate(-self.rotate_polygon_center[0], -self.rotate_polygon_center[1])
-
         with suppress(KeyError):
             direction = {
                 16777235: QPointF(0.0, self.TRANSLATE_DELTA),
@@ -218,10 +188,5 @@ class DefaultScene(QOpenGLWidget):
             }[event.key()]
             self.translate_matrix.translate(direction.x(), direction.y(), 0.0)
 
-        self.initializeGL()
-        self.update()
-
-    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
-        self.last_double_click = event.pos()
         self.initializeGL()
         self.update()

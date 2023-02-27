@@ -16,30 +16,17 @@ class Plate(Model):
     DOWN_RADIUS = 0.3
 
     def def_color_const(self):
-        def _get_color(base):
-            step = self.color_step
-            if step > 50:
-                step = 50 - step % 50
-            if step == 50:
-                step = 49
 
-            return tuple(
-                (component + step * 0.01) % 1.0
-                for component in base
-            )
-
-        self.C1 = _get_color((0.5, 0.0, 0.0))
-        self.C2 = _get_color((0.0, 0.5, 0.0))
-        self.C3 = _get_color((0.0, 0.0, 0.5))
+        self.C1 = (0.0, 0.0)
+        self.C2 = (0.5, 0.95)
+        self.C3 = (1.0, 0.0)
 
     def __init__(self,
                  context,
                  program,
-                 edge_count: int,
-                 color_step: int):
+                 edge_count: int):
         super().__init__(context, program)
         self.edge_count = 3 if edge_count < 3 else edge_count
-        self.color_step = color_step
         self.def_color_const()
 
     @staticmethod
@@ -71,35 +58,35 @@ class Plate(Model):
             end_down = self.get_point_by_angle(end_angle_down, self.DOWN_RADIUS, self.DOWN)
 
             bottom_polygons.append(np.array(
-                start_down + self.C2 +
-                end_down + self.C2 +
-                (0.0, self.DOWN, 0.0, 1.0) + self.C3
+                start_down + self.C3 +
+                end_down + self.C1 +
+                (0.0, self.DOWN, 0.0, 1.0) + self.C2
             ))
 
             bottom_polygons.append(np.array(
                 (0.0, self.DOWN, 0.0, 1.0) + self.C2 +
-                end_down + self.C1 +
+                end_down + self.C3 +
                 start_down + self.C1
             ))
 
             upper_polygons.append(np.array(
-                start_up + self.C1 +
+                start_up + self.C3 +
                 end_up + self.C1 +
                 start_down + self.C2
             ))
             upper_polygons.append(np.array(
-                end_down + self.C2 +
-                start_down + self.C2 +
+                end_down + self.C1 +
+                start_down + self.C1 +
                 end_up + self.C1
             ))
 
             upper_polygons.append(np.array(
-                start_down + self.C1 +
+                start_down + self.C2 +
                 end_up + self.C3 +
-                start_up + self.C3
+                start_up + self.C1
             ))
             upper_polygons.append(np.array(
-                end_up + self.C3 +
+                end_up + self.C1 +
                 start_down + self.C1 +
                 end_down + self.C1
             ))

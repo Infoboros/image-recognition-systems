@@ -1,11 +1,7 @@
-import ModernGL
-import numpy as np
 from ModernGL import VertexArray
-from OpenGL import GL
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtWidgets import QVBoxLayout, QPlainTextEdit, QSizePolicy, QHBoxLayout, QTextEdit, QLabel, QDoubleSpinBox, \
-    QSpinBox, QComboBox
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QVBoxLayout, QLabel, QSpinBox, QComboBox
 
 from models.plate import Plate
 from scenes.default_scene import DefaultScene
@@ -51,16 +47,13 @@ class PlateScene(DefaultScene):
         super().__init__(
             screen,
             [
-                "СРО. Лабораторная работа №1",
+                "СРО. Лабораторная работа №2",
                 "Колесо мыши - масштабирование",
                 "Зажатая кнопка мыши - повернуть сцену",
                 "Стрелки - подвинуть сцену",
-                "Зажать Tab - анимация переливания цветов",
-                "XYZ - вращение вокруг последнего двойного нажатия"
             ]
         )
         self.edge_count = 5
-        self.color_step = 0
         self.init_ui()
 
     def get_vaoes(self) -> [VertexArray]:
@@ -69,7 +62,6 @@ class PlateScene(DefaultScene):
                 self.ctx,
                 self.prog,
                 self.edge_count,
-                self.color_step
             ) \
                 .get_vao_list()
 
@@ -89,9 +81,3 @@ class PlateScene(DefaultScene):
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         super().keyPressEvent(event)
-        if event.key() == 16777217:
-            self.color_step += 1
-            self.color_step %= 100
-
-            self.initializeGL()
-            self.update()

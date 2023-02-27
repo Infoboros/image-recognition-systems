@@ -16,7 +16,7 @@ class Model(ABC):
             self.ctx.simple_vertex_array(
                 self.prog,
                 self.ctx.buffer(polygon.astype(f'f4').tobytes()),
-                ['vert', 'vert_color']
+                ['vert', 'tex_coord']
             )
             for polygon in self.get_polygons()
         ]
