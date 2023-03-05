@@ -18,21 +18,6 @@ class PlateScene(DefaultScene):
         label = QLabel('Тип проекции:', self)
         layout.addWidget(label)
 
-        self.proect_type_input = QComboBox(self)
-        self.proect_type_input.addItems([
-            'Перспективная',
-            'Ортографическая',
-        ])
-        self.proect_type_input.setFixedSize(100, 30)
-        self.proect_type_input.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.proect_type_input.currentIndexChanged.connect(self.change_proect_type)
-        layout.addWidget(self.proect_type_input)
-
-        layout.addStretch()
-
-        label = QLabel('Количество ребер:', self)
-        layout.addWidget(label)
-
         self.edge_input = QSpinBox(self)
         self.edge_input.setFixedSize(100, 30)
         self.edge_input.setValue(self.edge_count)
@@ -73,10 +58,6 @@ class PlateScene(DefaultScene):
         self.edge_count = value
 
         self.initializeGL()
-        self.update()
-
-    def change_proect_type(self, index: int):
-        self.proect = index
         self.update()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:

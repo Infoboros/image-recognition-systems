@@ -71,24 +71,22 @@ class DefaultScene(QOpenGLWidget):
         matrix = QMatrix4x4()
         matrix.setToIdentity()
 
-        if self.proect == 0:
-            matrix.perspective(30.0, self.width() / float(self.height()), 0.1, 20.0)
-            matrix.translate(0.0, 0.0, -5.0)
-            matrix *= self.translate_matrix
+        matrix.translate(0.0, 0.0, -5.0)
+        matrix *= self.translate_matrix
 
-            matrix.scale(self.scale, self.scale, self.scale)
-            matrix *= self.base_rotate_matrix * self.rotate_matrix.transposed()
-        else:
-            matrix *= self.translate_matrix
-
-            matrix.scale(self.scale, self.scale, self.scale)
-            matrix.rotate(30, 1, 0, 0)
-            matrix *= self.base_rotate_matrix * self.rotate_matrix.transposed()
-
-            matrix.translate(0.0, 0.0, 0.5)
-            matrix.ortho(-1.0, -1.0, 1.0, 1.0, -1.5, 1.5)
+        matrix.scale(self.scale, self.scale, self.scale)
+        matrix *= self.base_rotate_matrix * self.rotate_matrix.transposed()
 
         return tuple(matrix.data())
+
+    def get_proect_matrix(self) -> [float]:
+        matrix = QMatrix4x4()
+        matrix.setToIdentity()
+
+        matrix.perspective(30.0, self.width() / float(self.height()), 0.1, 20.0)
+
+        return tuple(matrix.data())
+
 
     def resizeGL(self, w: int, h: int) -> None:
         self.ctx.viewport = (0, 0, self.width(), self.height())
@@ -106,17 +104,24 @@ class DefaultScene(QOpenGLWidget):
             [
                 self.ctx.vertex_shader('''
                             #version 330
-    
+
                             in vec4 vert;
                             in vec2 tex_coord;
+                            in vec3 normal;
                             
                             out vec2 v_tex_coord;
+                            out vec3 fNormal;
+                            out vec4 fPos;
                             
                             uniform mat4 model_matrix;
+                            uniform mat4 proect_matrix;
     
                             void main() {
-                                gl_Position = model_matrix * vert;
+                                gl_Position = proect_matrix * model_matrix * vert;
+                                
                                 v_tex_coord = tex_coord;
+                                fNormal = mat3(transpose(inverse(model_matrix))) * normal;;
+                                fPos = model_matrix * vert;
                             }
                 '''),
                 self.ctx.fragment_shader('''
@@ -125,10 +130,32 @@ class DefaultScene(QOpenGLWidget):
                             uniform sampler2D texture_a;
 
                             in vec2 v_tex_coord;
+                            in vec3 fNormal;
+                            in vec4 fPos;
+                            
                             out vec4 color;
 
                             void main() {
-                                color = vec4(texture(texture_a, v_tex_coord).rgb, 1.0);
+                                float ambientStrength = 0.1f;
+                                vec3 lightColor = vec3(1.0f, 0.0f, 1.0f);
+                                vec3 lightPos = vec3(-1.0f, -1.0f, -1.0f);
+                                float specularStrength = 0.5f;
+                                
+                                vec3 ambient = ambientStrength * lightColor;
+                                
+                                vec3 norm = normalize(fNormal);
+                                vec3 lightDir = normalize(lightPos - fPos.xyz);
+                                float diff = max(dot(norm, lightDir), 0.0);
+                                vec3 diffuse = diff * lightColor;
+                                
+                                vec3 viewDir = normalize(-fPos.xyz);
+                                vec3 reflectDir = reflect(-lightDir, norm);
+                                float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+                                vec3 specular = specularStrength * spec * lightColor;
+                                
+                                vec3 textureColor = texture(texture_a, v_tex_coord).rgb;
+                                
+                                color = vec4((ambient + diffuse + specular) * textureColor, 1.0f);
                             }
                 ''')
             ]
@@ -147,6 +174,8 @@ class DefaultScene(QOpenGLWidget):
         self.texture.use()
 
         self.prog.uniforms['model_matrix'].value = self.get_model_matrix()
+        self.prog.uniforms['proect_matrix'].value = self.get_proect_matrix()
+
         [
             vao.render(mode=ModernGL.TRIANGLE_STRIP)
             for vao in self.vaoes

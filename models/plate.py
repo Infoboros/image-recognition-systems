@@ -16,7 +16,6 @@ class Plate(Model):
     DOWN_RADIUS = 0.3
 
     def def_color_const(self):
-
         self.C1 = (0.0, 0.0)
         self.C2 = (0.5, 0.95)
         self.C3 = (1.0, 0.0)
@@ -58,37 +57,49 @@ class Plate(Model):
             end_down = self.get_point_by_angle(end_angle_down, self.DOWN_RADIUS, self.DOWN)
 
             bottom_polygons.append(np.array(
-                start_down + self.C3 +
-                end_down + self.C1 +
-                (0.0, self.DOWN, 0.0, 1.0) + self.C2
+                self.add_norm_to_polygon(
+                    start_down, self.C3,
+                    end_down, self.C1,
+                    (0.0, self.DOWN, 0.0, 1.0), self.C2
+                )
             ))
 
             bottom_polygons.append(np.array(
-                (0.0, self.DOWN, 0.0, 1.0) + self.C2 +
-                end_down + self.C3 +
-                start_down + self.C1
+                self.add_norm_to_polygon(
+                    (0.0, self.DOWN, 0.0, 1.0), self.C2,
+                    end_down, self.C3,
+                    start_down, self.C1
+                )
             ))
 
             upper_polygons.append(np.array(
-                start_up + self.C3 +
-                end_up + self.C1 +
-                start_down + self.C2
+                self.add_norm_to_polygon(
+                    start_up, self.C3,
+                    end_up, self.C1,
+                    start_down, self.C2
+                )
             ))
             upper_polygons.append(np.array(
-                end_down + self.C1 +
-                start_down + self.C1 +
-                end_up + self.C1
+                self.add_norm_to_polygon(
+                    end_down, self.C1,
+                    start_down, self.C1,
+                    end_up, self.C1
+                )
             ))
 
             upper_polygons.append(np.array(
-                start_down + self.C2 +
-                end_up + self.C3 +
-                start_up + self.C1
+                self.add_norm_to_polygon(
+                    start_down, self.C2,
+                    end_up, self.C3,
+                    start_up, self.C1
+                )
             ))
             upper_polygons.append(np.array(
-                end_up + self.C1 +
-                start_down + self.C1 +
-                end_down + self.C1
+                self.add_norm_to_polygon(
+                    end_up, self.C1,
+                    start_down, self.C1,
+                    end_down, self.C1
+                )
             ))
 
         return bottom_polygons + upper_polygons
