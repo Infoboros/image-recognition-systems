@@ -15,7 +15,7 @@ class PlateScene(DefaultScene):
 
         layout.addStretch()
 
-        label = QLabel('Тип проекции:', self)
+        label = QLabel('Количество ребер:', self)
         layout.addWidget(label)
 
         self.edge_input = QSpinBox(self)

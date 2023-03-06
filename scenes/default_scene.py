@@ -134,11 +134,8 @@ class DefaultScene(QOpenGLWidget):
                             in vec4 fPos;
                             
                             out vec4 color;
-
-                            void main() {
-                                float ambientStrength = 0.1f;
-                                vec3 lightColor = vec3(1.0f, 0.0f, 1.0f);
-                                vec3 lightPos = vec3(-1.0f, -1.0f, -1.0f);
+                            vec3 getLight(vec3 lightColor, vec3 lightPos){
+                                float ambientStrength = 0.2f;
                                 float specularStrength = 0.5f;
                                 
                                 vec3 ambient = ambientStrength * lightColor;
@@ -153,9 +150,17 @@ class DefaultScene(QOpenGLWidget):
                                 float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
                                 vec3 specular = specularStrength * spec * lightColor;
                                 
+                                return ambient + diffuse + specular;
+                            }
+
+                            void main() {
+                                vec3 redLight = getLight(vec3(1.0f, 0.0f, 0.0f), vec3(-1.0f, -1.0f, -5.0f)) * 0.5;
+                                vec3 blueLight = getLight(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 1.0f, -5.0f))  * 0.5;
+                                vec3 light = redLight + blueLight;
+                                
                                 vec3 textureColor = texture(texture_a, v_tex_coord).rgb;
                                 
-                                color = vec4((ambient + diffuse + specular) * textureColor, 1.0f);
+                                color = vec4(light * textureColor, 1.0f);
                             }
                 ''')
             ]
