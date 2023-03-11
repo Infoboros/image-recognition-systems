@@ -48,6 +48,7 @@ class DefaultScene(QOpenGLWidget):
         self.rotate_matrix = self.init_matrix()
         self.base_rotate_matrix = self.init_matrix()
         self.translate_matrix = self.init_matrix()
+        self.light_rotate_matrix = self.init_matrix()
 
         self.vaoes: [VertexArray] = []
         self.proect = 0
@@ -87,6 +88,8 @@ class DefaultScene(QOpenGLWidget):
 
         return tuple(matrix.data())
 
+    def get_light_matrix(self) -> [float]:
+        return tuple(self.light_rotate_matrix.data())
 
     def resizeGL(self, w: int, h: int) -> None:
         self.ctx.viewport = (0, 0, self.width(), self.height())
@@ -112,9 +115,11 @@ class DefaultScene(QOpenGLWidget):
                             out vec2 v_tex_coord;
                             out vec3 fNormal;
                             out vec4 fPos;
+                            out mat4 lightMatrix;
                             
                             uniform mat4 model_matrix;
                             uniform mat4 proect_matrix;
+                            uniform mat4 light_matrix;
     
                             void main() {
                                 gl_Position = proect_matrix * model_matrix * vert;
@@ -122,6 +127,7 @@ class DefaultScene(QOpenGLWidget):
                                 v_tex_coord = tex_coord;
                                 fNormal = mat3(transpose(inverse(model_matrix))) * normal;;
                                 fPos = model_matrix * vert;
+                                lightMatrix = light_matrix;
                             }
                 '''),
                 self.ctx.fragment_shader('''
@@ -132,16 +138,19 @@ class DefaultScene(QOpenGLWidget):
                             in vec2 v_tex_coord;
                             in vec3 fNormal;
                             in vec4 fPos;
+                            in mat4 lightMatrix;
                             
                             out vec4 color;
-                            vec3 getLight(vec3 lightColor, vec3 lightPos){
+                            vec3 getLight(vec3 lightColor, vec2 lightPos){
+                                vec3 rotatedLightPos = vec3((lightMatrix * vec4(lightPos, 1.0f, 1.0f)).xy, -5.0f);
+                            
                                 float ambientStrength = 0.2f;
                                 float specularStrength = 0.5f;
                                 
                                 vec3 ambient = ambientStrength * lightColor;
                                 
                                 vec3 norm = normalize(fNormal);
-                                vec3 lightDir = normalize(lightPos - fPos.xyz);
+                                vec3 lightDir = normalize(rotatedLightPos - fPos.xyz);
                                 float diff = max(dot(norm, lightDir), 0.0);
                                 vec3 diffuse = diff * lightColor;
                                 
@@ -154,8 +163,8 @@ class DefaultScene(QOpenGLWidget):
                             }
 
                             void main() {
-                                vec3 redLight = getLight(vec3(1.0f, 0.0f, 0.0f), vec3(-1.0f, -1.0f, -5.0f)) * 0.5;
-                                vec3 blueLight = getLight(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 1.0f, -5.0f))  * 0.5;
+                                vec3 redLight = getLight(vec3(1.0f, 0.0f, 0.0f), vec2(-1.0f, -1.0f)) * 0.5;
+                                vec3 blueLight = getLight(vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 1.0f))  * 0.5;
                                 vec3 light = redLight + blueLight;
                                 
                                 vec3 textureColor = texture(texture_a, v_tex_coord).rgb;
@@ -180,6 +189,7 @@ class DefaultScene(QOpenGLWidget):
 
         self.prog.uniforms['model_matrix'].value = self.get_model_matrix()
         self.prog.uniforms['proect_matrix'].value = self.get_proect_matrix()
+        self.prog.uniforms['light_matrix'].value = self.get_light_matrix()
 
         [
             vao.render(mode=ModernGL.TRIANGLE_STRIP)
@@ -213,6 +223,9 @@ class DefaultScene(QOpenGLWidget):
         self.update()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.key() == 16777217:
+            self.light_rotate_matrix.rotate(self.ROTATE_ANGLE * 5, 0.0, 0.0, 1.0)
+
         with suppress(KeyError):
             direction = {
                 16777235: QPointF(0.0, self.TRANSLATE_DELTA),
