@@ -1,13 +1,14 @@
 from ModernGL import VertexArray
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QVBoxLayout, QLabel, QSpinBox, QComboBox
+from PyQt6.QtWidgets import QVBoxLayout, QLabel, QSpinBox
 
-from models.plate import Plate
+
+from models.cup import Cup
 from scenes.default_scene import DefaultScene
 
 
-class PlateScene(DefaultScene):
+class CupScene(DefaultScene):
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -44,7 +45,7 @@ class PlateScene(DefaultScene):
 
     def get_vaoes(self) -> [VertexArray]:
         return \
-            Plate(
+            Cup(
                 self.ctx,
                 self.prog,
                 self.edge_count,

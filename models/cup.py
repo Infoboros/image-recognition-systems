@@ -6,14 +6,14 @@ from PyQt6.QtGui import QVector3D
 from models.model import Model
 
 
-class Plate(Model):
+class Cup(Model):
     CIRCLE_RADIANS = 6.29
 
-    UP = 0.1
-    UP_RADIUS = 0.7
+    UP = 0.2
+    UP_RADIUS = 0.3
 
-    DOWN = -0.1
-    DOWN_RADIUS = 0.3
+    DOWN = -0.2
+    DOWN_RADIUS = 0.2
 
     def def_color_const(self):
         self.C1 = (0.0, 0.0)

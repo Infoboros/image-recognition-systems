@@ -42,7 +42,7 @@ class DefaultScene(QOpenGLWidget):
     def __init__(self, screen: QScreen, legend: [str]):
         self.legend = legend
 
-        self.scale = 1.0
+        self.scale = 3.0
         self.last_mouse_down = QPointF()
         self.last_double_click = QPointF()
         self.rotate_matrix = self.init_matrix()
@@ -163,8 +163,8 @@ class DefaultScene(QOpenGLWidget):
                             }
 
                             void main() {
-                                vec3 redLight = getLight(vec3(1.0f, 0.0f, 0.0f), vec2(-1.0f, -1.0f)) * 0.5;
-                                vec3 blueLight = getLight(vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 1.0f))  * 0.5;
+                                vec3 redLight = getLight(vec3(1.0f, 1.0f, 0.0f), vec2(-1.0f, -1.0f)) * 0.5;
+                                vec3 blueLight = getLight(vec3(0.0f, 1.0f, 1.0f), vec2(1.0f, 1.0f))  * 0.5;
                                 vec3 light = redLight + blueLight;
                                 
                                 vec3 textureColor = texture(texture_a, v_tex_coord).rgb;
@@ -177,7 +177,7 @@ class DefaultScene(QOpenGLWidget):
 
         self.vaoes = self.get_vaoes()
 
-        img = Image.open(os.path.join(os.path.dirname(__file__), '..', 'textures', 'cat.jpeg'))
+        img = Image.open(os.path.join(os.path.dirname(__file__), '..', 'textures', 'imperror.jpg'))
         self.texture = self.ctx.texture(img.size, 3, img.tobytes())
 
     def paintGL(self):
