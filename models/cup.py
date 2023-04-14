@@ -1,19 +1,18 @@
 from math import cos, sin
 
 import numpy as np
-from PyQt6.QtGui import QVector3D
 
 from models.model import Model
 
 
-class Plate(Model):
+class Cup(Model):
     CIRCLE_RADIANS = 6.29
 
-    UP = 0.1
-    UP_RADIUS = 0.7
+    UP = 0.2
+    UP_RADIUS = 0.3
 
-    DOWN = -0.1
-    DOWN_RADIUS = 0.3
+    DOWN = -0.2
+    DOWN_RADIUS = 0.2
 
     def def_color_const(self):
         def _get_color(base):
@@ -28,9 +27,9 @@ class Plate(Model):
                 for component in base
             )
 
-        self.C1 = _get_color((0.5, 0.0, 0.0))
+        self.C1 = _get_color((0.0, 0.0, 0.5))
         self.C2 = _get_color((0.0, 0.5, 0.0))
-        self.C3 = _get_color((0.0, 0.0, 0.5))
+        self.C3 = _get_color((0.5, 0.0, 0.0))
 
     def __init__(self,
                  context,

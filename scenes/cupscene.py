@@ -7,11 +7,11 @@ from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtWidgets import QVBoxLayout, QPlainTextEdit, QSizePolicy, QHBoxLayout, QTextEdit, QLabel, QDoubleSpinBox, \
     QSpinBox, QComboBox
 
-from models.plate import Plate
+from models.cup import Cup
 from scenes.default_scene import DefaultScene
 
 
-class PlateScene(DefaultScene):
+class CupScene(DefaultScene):
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -55,17 +55,17 @@ class PlateScene(DefaultScene):
                 "Колесо мыши - масштабирование",
                 "Зажатая кнопка мыши - повернуть сцену",
                 "Стрелки - подвинуть сцену",
-                "Зажать Tab - анимация переливания цветов",
-                "XYZ - вращение вокруг последнего двойного нажатия"
+                "Зажать Tab - анимация переливания цветов и изменение размера"
             ]
         )
+        self.zoom_direction = 1
         self.edge_count = 5
         self.color_step = 0
         self.init_ui()
 
     def get_vaoes(self) -> [VertexArray]:
         return \
-            Plate(
+            Cup(
                 self.ctx,
                 self.prog,
                 self.edge_count,
@@ -92,6 +92,10 @@ class PlateScene(DefaultScene):
         if event.key() == 16777217:
             self.color_step += 1
             self.color_step %= 100
+
+            self.scale += self.SCALE_STEP * self.zoom_direction * 300
+            if (self.scale < 0.5) or (self.scale > 1.5):
+                self.zoom_direction *= -1
 
             self.initializeGL()
             self.update()
