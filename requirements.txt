@@ -1,0 +1,8 @@
+glcontext==2.3.7
+glfw==2.5.6
+ModernGL==4.1.9
+numpy==1.24.2
+Pillow==9.4.0
+PyOpenGL==3.1.6
+PyQt6==6.4.2
+PyQt6-Qt6==6.4.2
