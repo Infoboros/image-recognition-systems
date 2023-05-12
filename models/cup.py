@@ -20,10 +20,13 @@ class Cup(Model):
         self.C2 = (0.5, 0.95)
         self.C3 = (1.0, 0.0)
 
-    def __init__(self,
-                 context,
-                 program,
-                 edge_count: int):
+    def __init__(
+            self,
+            context,
+            program,
+            edge_count: int,
+            center
+    ):
         super().__init__(context, program)
         self.edge_count = 3 if edge_count < 3 else edge_count
         self.def_color_const()
@@ -82,8 +85,8 @@ class Cup(Model):
             upper_polygons.append(np.array(
                 self.add_norm_to_polygon(
                     end_down, self.C1,
-                    start_down, self.C1,
-                    end_up, self.C1
+                    start_down, self.C2,
+                    end_up, self.C3
                 )
             ))
 
@@ -97,8 +100,8 @@ class Cup(Model):
             upper_polygons.append(np.array(
                 self.add_norm_to_polygon(
                     end_up, self.C1,
-                    start_down, self.C1,
-                    end_down, self.C1
+                    start_down, self.C2,
+                    end_down, self.C3
                 )
             ))
 

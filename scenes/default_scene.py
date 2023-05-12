@@ -177,7 +177,7 @@ class DefaultScene(QOpenGLWidget):
 
         self.vaoes = self.get_vaoes()
 
-        img = Image.open(os.path.join(os.path.dirname(__file__), '..', 'textures', 'imperror.jpg'))
+        img = Image.open(os.path.join(os.path.dirname(__file__), '..', 'textures', 'wood.jpg'))
         self.texture = self.ctx.texture(img.size, 3, img.tobytes())
 
     def paintGL(self):
