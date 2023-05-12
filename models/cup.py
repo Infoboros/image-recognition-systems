@@ -14,7 +14,7 @@ class Cup(Model):
     DOWN = -0.2
     DOWN_RADIUS = 0.2
 
-    def def_color_const(self):
+    def def_color_const(self, base_colors):
         def _get_color(base):
             step = self.color_step
             if step > 50:
@@ -27,19 +27,23 @@ class Cup(Model):
                 for component in base
             )
 
-        self.C1 = _get_color((0.0, 0.0, 0.5))
-        self.C2 = _get_color((0.0, 0.5, 0.0))
-        self.C3 = _get_color((0.5, 0.0, 0.0))
+        self.C1 = _get_color(base_colors[0])
+        self.C2 = _get_color(base_colors[1])
+        self.C3 = _get_color(base_colors[2])
 
     def __init__(self,
                  context,
                  program,
                  edge_count: int,
-                 color_step: int):
+                 color_step: int,
+                 center,
+                 base_colors
+                 ):
         super().__init__(context, program)
         self.edge_count = 3 if edge_count < 3 else edge_count
         self.color_step = color_step
-        self.def_color_const()
+        self.def_color_const(base_colors)
+        self.center = center
 
     @staticmethod
     def get_point_by_angle(angle, radius, y) -> (float, float):
@@ -63,20 +67,20 @@ class Cup(Model):
             start_angle_down = (start_angle_up + end_angle_up) / 2.0
             end_angle_down = start_angle_down + step
 
-            start_up = self.get_point_by_angle(start_angle_up, self.UP_RADIUS, self.UP)
-            end_up = self.get_point_by_angle(end_angle_up, self.UP_RADIUS, self.UP)
+            start_up = self.get_point_by_angle(start_angle_up, self.UP_RADIUS, self.UP + self.center)
+            end_up = self.get_point_by_angle(end_angle_up, self.UP_RADIUS, self.UP + self.center)
 
-            start_down = self.get_point_by_angle(start_angle_down, self.DOWN_RADIUS, self.DOWN)
-            end_down = self.get_point_by_angle(end_angle_down, self.DOWN_RADIUS, self.DOWN)
+            start_down = self.get_point_by_angle(start_angle_down, self.DOWN_RADIUS, self.DOWN + self.center)
+            end_down = self.get_point_by_angle(end_angle_down, self.DOWN_RADIUS, self.DOWN + self.center)
 
             bottom_polygons.append(np.array(
                 start_down + self.C2 +
                 end_down + self.C2 +
-                (0.0, self.DOWN, 0.0, 1.0) + self.C3
+                (0.0, self.DOWN + self.center, 0.0, 1.0) + self.C3
             ))
 
             bottom_polygons.append(np.array(
-                (0.0, self.DOWN, 0.0, 1.0) + self.C2 +
+                (0.0, self.DOWN + self.center, 0.0, 1.0) + self.C2 +
                 end_down + self.C1 +
                 start_down + self.C1
             ))

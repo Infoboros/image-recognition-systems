@@ -64,14 +64,26 @@ class CupScene(DefaultScene):
         self.init_ui()
 
     def get_vaoes(self) -> [VertexArray]:
-        return \
-            Cup(
-                self.ctx,
-                self.prog,
-                self.edge_count,
-                self.color_step
-            ) \
-                .get_vao_list()
+        vaoes = []
+        vaoes += Cup(
+            self.ctx,
+            self.prog,
+            self.edge_count,
+            self.color_step,
+            -0.5,
+            ((0.0, 0.0, 0.5), (0.0, 0.5, 0.0), (0.5, 0.0, 0.0))
+        ).get_vao_list()
+
+        vaoes += Cup(
+            self.ctx,
+            self.prog,
+            self.edge_count,
+            self.color_step,
+            0.5,
+            ((128./256., 0.0, 211.0/256.), (128./256., 0.0, 211.0/256.), (0.0, 0.5, 0.0))
+        ).get_vao_list()
+
+        return vaoes
 
     def change_edge_input(self, value):
         if value < 3:
