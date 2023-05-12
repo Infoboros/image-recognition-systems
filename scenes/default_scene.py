@@ -12,6 +12,8 @@ from PyQt6.QtCore import QPointF
 from PyQt6.QtGui import QScreen, QPainter, QMatrix4x4, QSurfaceFormat
 from PyQt6.QtOpenGLWidgets import QOpenGLWidget
 
+from models.cup import Cup
+
 
 class DefaultScene(QOpenGLWidget):
     SCALE_STEP = 8.3e-5
@@ -163,8 +165,8 @@ class DefaultScene(QOpenGLWidget):
                             }
 
                             void main() {
-                                vec3 redLight = getLight(vec3(1.0f, 1.0f, 0.0f), vec2(-1.0f, -1.0f)) * 0.5;
-                                vec3 blueLight = getLight(vec3(0.0f, 1.0f, 1.0f), vec2(1.0f, 1.0f))  * 0.5;
+                                vec3 redLight = getLight(vec3(1.0f, 1.0f, 0.0f), vec2(0.0f, -1.0f)) * 0.5;
+                                vec3 blueLight = getLight(vec3(0.0f, 1.0f, 1.0f), vec2(0.0f, 1.0f))  * 0.5;
                                 vec3 light = redLight + blueLight;
                                 
                                 vec3 textureColor = texture(texture_a, v_tex_coord).rgb;
@@ -195,8 +197,37 @@ class DefaultScene(QOpenGLWidget):
             vao.render(mode=ModernGL.TRIANGLE_STRIP)
             for vao in self.vaoes
         ]
-        self.ctx.finish()
 
+        new_model_matrix = QMatrix4x4()
+        new_model_matrix.setToIdentity()
+
+        new_model_matrix.translate(0.0, 0.0, -5.0)
+        new_model_matrix.scale(0.3, 0.3, 0.3)
+        new_model_matrix *= self.light_rotate_matrix
+
+
+        self.prog.uniforms['model_matrix'].value = tuple(new_model_matrix.data())
+        [
+            vao.render(mode=ModernGL.TRIANGLE_STRIP)
+            for vao in Cup(
+            self.ctx,
+            self.prog,
+            3,
+            3
+        ) \
+            .get_vao_list()
+        ]
+        [
+            vao.render(mode=ModernGL.TRIANGLE_STRIP)
+            for vao in Cup(
+            self.ctx,
+            self.prog,
+            3,
+            -3
+        ) \
+            .get_vao_list()
+        ]
+        self.ctx.finish()
 
         self.print_legend()
 

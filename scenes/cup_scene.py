@@ -49,6 +49,7 @@ class CupScene(DefaultScene):
                 self.ctx,
                 self.prog,
                 self.edge_count,
+                0.0
             ) \
                 .get_vao_list()
 
