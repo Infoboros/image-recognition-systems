@@ -73,7 +73,7 @@ class QGLControllerWidget(QtOpenGLWidgets.QOpenGLWidget):
 
         # Texture
 
-        img = Image.open(os.path.join(os.path.dirname(__file__), 'textures', 'wood.jpg'))
+        img = Image.open(os.path.join(os.path.dirname(__file__), 'textures', 'fox.jpeg'))
         texture = self.ctx.texture(img.size, 3, img.tobytes())
         print(texture)
         texture.use(location=1)
