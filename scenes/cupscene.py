@@ -55,7 +55,7 @@ class CupScene(DefaultScene):
                 "Колесо мыши - масштабирование",
                 "Зажатая кнопка мыши - повернуть сцену",
                 "Стрелки - подвинуть сцену",
-                "Зажать Tab - анимация переливания цветов и изменение размера"
+                "Зажать Tab - анимация переливания цветов и вращения"
             ]
         )
         self.zoom_direction = 1
@@ -65,21 +65,13 @@ class CupScene(DefaultScene):
 
     def get_vaoes(self) -> [VertexArray]:
         vaoes = []
-        vaoes += Cup(
-            self.ctx,
-            self.prog,
-            self.edge_count,
-            self.color_step,
-            -0.5,
-            ((0.0, 0.0, 0.5), (0.0, 0.5, 0.0), (0.5, 0.0, 0.0))
-        ).get_vao_list()
 
         vaoes += Cup(
             self.ctx,
             self.prog,
             self.edge_count,
             self.color_step,
-            0.5,
+            0.0,
             ((128./256., 0.0, 211.0/256.), (128./256., 0.0, 211.0/256.), (0.0, 0.5, 0.0))
         ).get_vao_list()
 
@@ -105,9 +97,7 @@ class CupScene(DefaultScene):
             self.color_step += 1
             self.color_step %= 100
 
-            self.scale += self.SCALE_STEP * self.zoom_direction * 300
-            if (self.scale < 0.5) or (self.scale > 1.5):
-                self.zoom_direction *= -1
+            self.rotate_matrix.rotate(self.ROTATE_ANGLE, 0.0, 1.0, 0.0)
 
             self.initializeGL()
             self.update()

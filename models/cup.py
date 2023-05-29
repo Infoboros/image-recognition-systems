@@ -8,11 +8,11 @@ from models.model import Model
 class Cup(Model):
     CIRCLE_RADIANS = 6.29
 
-    UP = 0.2
-    UP_RADIUS = 0.3
+    UP = 0.3
+    UP_RADIUS = 0.2
 
-    DOWN = -0.2
-    DOWN_RADIUS = 0.2
+    DOWN = -0.3
+    DOWN_RADIUS = 0.15
 
     def def_color_const(self, base_colors):
         def _get_color(base):
